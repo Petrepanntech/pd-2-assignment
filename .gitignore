@@ -6,5 +6,6 @@ instance/
 .venv
 venv/
 *.db
+.vercel/
 .idea/
 .vscode/

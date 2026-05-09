@@ -1,142 +1,52 @@
 # 🚀 Vercel Deployment Guide
 
-## Current Setup Status
+This project deploys on Vercel using `@vercel/python` and the Flask app exported from `api/index.py`.
 
-Your Flask app is now configured for Vercel deployment:
-- ✅ `vercel.json` - Serverless function configuration
-- ✅ `api/index.py` - WSGI handler for Flask
-- ✅ GitHub repository ready for deployment
+## 1) Required Environment Variables
 
-## Prerequisites
+Set these in **Vercel → Project → Settings → Environment Variables**:
 
-Before running locally or deploying:
+- `APP_ENV=production` (or `FLASK_ENV=production`)
+- `JWT_SECRET_KEY=<strong-random-secret>`
+- `DATABASE_URL=<postgresql://...>`
+- `RUN_DB_CREATE_ALL=false`
+
+In production:
+- `JWT_SECRET_KEY` is required
+- `DATABASE_URL` must be a persistent database (SQLite is rejected)
+
+## 2) Deploy
+
+1. Import the GitHub repository into Vercel.
+2. Confirm the framework preset is **Other**.
+3. Keep `vercel.json` as-is (routes all requests to `api/index.py`).
+4. Deploy.
+
+## 3) Initialize Database Schema Once
+
+Do this once per environment (from local machine or CI):
 
 ```bash
-# 1. Install Node.js (required for Vercel CLI)
-# Download from https://nodejs.org/
-
-# 2. Verify installation
-node --version
-npm --version
-
-# 3. Install Vercel CLI globally
-npm install -g vercel
+APP_ENV=production \
+JWT_SECRET_KEY=... \
+DATABASE_URL=postgresql://... \
+flask --app app:create_app init-db
 ```
 
-## Running Locally with Vercel Dev
+`db.create_all()` is intentionally not run on every production cold start.
 
-### Step 1: Navigate to Project
-```bash
-cd "c:\Users\petre\OneDrive\Desktop\Meta_Insights\Python\Pandas_lesson\pd_2 assignment"
-```
+## 4) Static HTML Routes
 
-### Step 2: Start Vercel Dev Server
+The Flask page routes (e.g. `/`, `/login`) try to serve HTML files from:
+1. repository root
+2. `templates/`
+
+If a file is missing from deployment artifacts, the route returns a clear `404` JSON error.
+
+## 5) Local Vercel Test
+
 ```bash
+npm i -g vercel
 vercel dev
 ```
 
-### Step 3: First-Time Setup
-When you run `vercel dev` for the first time:
-1. You'll be asked to log in to Vercel
-2. Or create a new Vercel account
-3. Follow the on-screen prompts
-4. Select "Link to existing project" or "Create a new one"
-
-### Step 4: Access Your App
-```
-Open http://localhost:3000 in your browser
-```
-
-## Troubleshooting
-
-### Issue: "vercel command not found"
-**Solution:** Install Vercel CLI globally
-```bash
-npm install -g vercel
-```
-
-### Issue: "Port 3000 already in use"
-**Solution:** Use a different port
-```bash
-vercel dev --listen 3001
-```
-
-### Issue: Python dependencies not found
-**Solution:** Ensure requirements.txt is in root directory
-```bash
-# Install dependencies locally for testing
-pip install -r requirements.txt
-```
-
-### Issue: Database/SQLite errors
-**Note:** SQLite databases won't persist on Vercel (serverless limitation)
-- Local testing: Works fine with `.db` files
-- Production: Consider PostgreSQL or MongoDB
-
-## Deploying to Production
-
-### Step 1: Connect to GitHub
-```bash
-vercel
-```
-- Select "Link to existing project"
-- Choose your GitHub repo `Petrepanntech/pd-2-assignment`
-
-### Step 2: Set Environment Variables
-In Vercel Dashboard → Project Settings → Environment Variables:
-
-```
-JWT_SECRET_KEY = [generate-strong-secret]
-FLASK_ENV = production
-DATABASE_URL = [your-database-url-if-using-cloud-db]
-```
-
-**Generate JWT Secret:**
-```bash
-python -c "import secrets; print(secrets.token_urlsafe(32))"
-```
-
-### Step 3: Deploy
-The deployment happens automatically when you push to GitHub, or manually:
-```bash
-vercel --prod
-```
-
-## Project Structure for Vercel
-
-```
-├── api/
-│   └── index.py          # Main WSGI handler (entry point)
-├── app.py                # Flask app factory
-├── config.py             # Configuration
-├── models.py             # Database models
-├── routes/               # API blueprints
-├── requirements.txt      # Python dependencies
-├── vercel.json          # Vercel configuration
-└── [static files]       # HTML, CSS, JS
-```
-
-## Known Limitations
-
-❌ **SQLite doesn't work for production**
-- Vercel serverless functions are ephemeral
-- Each request gets a fresh environment
-- Database changes won't persist
-
-✅ **Solutions:**
-- Use PostgreSQL (Vercel has PostgreSQL integrations)
-- Use MongoDB (cloud database)
-- Use Firebase or Supabase
-
-## Next Steps
-
-1. **Test locally:** Run `vercel dev`
-2. **Fix any errors** that appear
-3. **Deploy:** Once working locally, run `vercel --prod`
-4. **Monitor:** Check Vercel dashboard for logs and issues
-
-## Resources
-
-- [Vercel Python Guide](https://vercel.com/docs/functions/serverless-functions/python)
-- [Flask on Vercel](https://vercel.com/templates/python/flask)
-- [Vercel CLI Documentation](https://vercel.com/docs/cli)
