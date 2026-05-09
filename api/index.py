@@ -1,12 +1,3 @@
-import sys
-import os
+from app import app
 
-# Add parent directory to path so we can import app
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from app import create_app
-
-# Create the Flask app
-app = create_app('production')
-
-# Export as WSGI application for Vercel
+# Vercel expects the WSGI app to be called 'app'
