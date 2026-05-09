@@ -41,7 +41,7 @@ def create_app(config_name='development'):
     for module_name, blueprint_name, url_prefix in blueprints:
         try:
             module_spec = importlib.util.find_spec(module_name)
-        except ModuleNotFoundError:
+        except ImportError:
             module_spec = None
         if module_spec is None:
             continue

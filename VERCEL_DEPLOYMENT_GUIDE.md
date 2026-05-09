@@ -30,7 +30,7 @@ Do this once per environment (from local machine or CI):
 APP_ENV=production \
 JWT_SECRET_KEY=... \
 DATABASE_URL=postgresql://... \
-flask --app app:create_app init-db
+flask --app "app:create_app()" init-db
 ```
 
 `db.create_all()` is intentionally not run on every production cold start.
@@ -49,4 +49,3 @@ If a file is missing from deployment artifacts, the route returns a clear `404` 
 npm i -g vercel
 vercel dev
 ```
-

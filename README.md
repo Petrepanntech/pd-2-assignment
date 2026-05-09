@@ -31,7 +31,7 @@ A comprehensive Flask-based application for supply chain management, data analyt
 3. Deploy.
 4. Initialize schema once against the production database from your local machine/CI:
    ```bash
-   APP_ENV=production JWT_SECRET_KEY=... DATABASE_URL=postgresql://... flask --app app:create_app init-db
+   APP_ENV=production JWT_SECRET_KEY=... DATABASE_URL=postgresql://... flask --app "app:create_app()" init-db
    ```
 
 > In production, SQLite is rejected and a persistent `DATABASE_URL` is required.
